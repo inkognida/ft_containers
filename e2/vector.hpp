@@ -628,9 +628,9 @@ namespace ft {
 			 */
 			void clear() {
 				// Refactor with pop_back
-				while ( !this->empty() ) {
-					this->pop_back();
-				}
+                for (size_type i = 0; i < m_size; i++)
+                    m_alloc.destroy(m_items + i);
+                m_size = 0;
 			}
 			
 			/**

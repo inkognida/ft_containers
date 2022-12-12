@@ -2341,4 +2341,16 @@ int     main(){
     test_stack();
     test_map();
 	test_containers_time();
+
+//    ft::vector<int> test;
+//    ft::vector<int>::iterator it;
+//
+//    test.push_back(1);
+//    test.push_back(2);
+//    test.push_back(3);
+//
+//    test.erase(test.begin(), test.begin() + 2);
+//    for (it = test.begin(); it<test.end(); it++)
+//        std::cout << " " << *it;
+//    std::cout << test.size();
 }

@@ -45,113 +45,278 @@ namespace ft {
         // typedef ft::reverse_iterator<const_iterator>            const_reverse_iterator;
     private:
         const static size_type  capacity_grow = 2;
-        Allocator               alloc;
-        size_type               capacity;
-        size_type               size;
-        T                       *items;
+        Allocator               m_alloc;
+        size_type               m_capacity;
+        size_type               m_size;
+        T                       *m_items;
 
         void clear_all();
+
+        void throw_range_exception(size_type n) const {
+            std::stringstream s;
+            s << "n (which is " << n << ") is bigger than" << m_size;
+        }
+
     public:
         // FUNCTIONS
-        explicit vector(const allocator_type& a = allocator_type()): alloc(a), capacity(0), size(0), items(NULL) {};
-        explicit vector(const Allocator& a): alloc(a.get_allocator()), capacity(a.capacity()), size(a.size()), items(NULL) {
-            if (capacity != 0){
-                items = alloc.allocate(capacity);
-                for (size_type i = 0; i < size; i++) 
-                    alloc.construct(&items[i], a.items[i])
+        explicit vector(const allocator_type &a = allocator_type()): m_alloc(a), m_capacity(0), m_size(0), m_items(NULL) {}
+
+        explicit vector(const vector &a): m_alloc(a.get_allocator()), m_capacity(a.m_capacity()), m_size(a.m_size()), m_items(NULL) {
+            if (m_capacity != 0){
+                m_items = m_alloc.allocate(m_capacity);
+                for (size_type i = 0; i < m_size; i++)
+                    m_alloc.construct(&m_items[i], a.m_items[i]);
             }
         };
+
         explicit vector(size_type n, const value_type &val = value_type(), const allocator_type &a = allocator_type() ) {
-				alloc = a;
-				items = alloc.allocate( n );
-				size = n;
-				capacity = n;
+				m_alloc = a;
+				m_items = m_alloc.allocate( n );
+				m_size = n;
+				m_capacity = n;
 
 				for ( size_type i = 0 ; i < n ; i++ ){
-					alloc.construct( &items[i], val );
+					m_alloc.construct( &m_items[i], val );
 				}
 			}
+
         vector& operator=( const vector& other ) {
-            if (&other == this) 
+            if (&other == this)
                 return *this;
             this->clear();
-            this->reserve(x.capacity());
-            for (size_type i = 0; i < other.size(); i++)
-                alloc.construct(&items[i], other[i]);
-            size = other.size();
+            this->reserve(other.m_capacity());
+            for (size_type i = 0; i < other.m_size(); i++)
+                m_alloc.construct(&m_items[i], other[i]);
+            m_size = other.m_size();
             return *this;
         }
 
         template< class InputIterator >
-        vector(InputIterator first, InputIterator last, const allocator_type &alloc = allocator_type(), 
+        vector(InputIterator first, InputIterator last, const allocator_type &m_alloc = allocator_type(),
                 typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = NULL ) :
-				m_alloc( alloc ),
+				m_alloc( m_alloc ),
 				m_items( NULL )
         {
             difference_type _size = ft::distance(first, last);
-            
-            if (size != 0) {
-                items = alloc.allocate(_size);
-                for (size_type i = 0; first != last; *first++; i++)
-                    alloc.construct(&items[i], *first)
+
+            if (m_size != 0) {
+                m_items = m_alloc.allocate(_size);
+                for (size_type i = 0; first != last; *first++, i++) {
+                    m_alloc.construct(&m_items[i], *first);
+                }
             }
-            size = _size;
-            capacity = _size;
+            m_size = _size;
+            m_capacity = _size;
         }
-        
+
         ~vector() {
-            if (items != NULL) {
-                for (size_type i = 0; i < size; i++)
-                    alloc.destroy(&items[i]);
+            if (m_items != NULL) {
+                for (size_type i = 0; i < m_size; i++)
+                    m_alloc.destroy(&m_items[i]);
             }
-            alloc.deallocate(items, capacity);
+            m_alloc.deallocate(m_items, m_capacity);
         }
-        size_type size() const { return size; }
-        size_type max_size() const { 
-            return return (std::min((size_type) std::numeric_limits<difference_type>::max(), std::numeric_limits<size_type>::max() / sizeof(value_type))); 
+
+        size_type size() const { return m_size; }
+
+        size_type max_size() const {
+            return (std::min((size_type) std::numeric_limits<difference_type>::max(),
+                             std::numeric_limits<size_type>::max() / sizeof(value_type)));
         }
+
+        size_type capacity() const { return m_capacity; }
+
+
         void resize (size_type n, value_type val = value_type()) {
-            if (n < size) {
-                for (size_type i = n; i < size; i++)
-                    alloc.destroy(&items[i]);
-                size = n;
+            if (n < m_size) {
+                for (size_type i = n; i < m_size; i++)
+                    m_alloc.destroy(&m_items[i]);
+                m_size = n;
             } else {
-                if (n > capacity)
+                if (n > m_capacity)
                     reserve(n);
-                for (size_type i = size; i < n; i++)
-                    alloc.construct(&items[i], val);
-                size = n;
+                for (size_type i = m_size; i < n; i++)
+                    m_alloc.construct(&m_items[i], val);
+                m_size = n;
             }
         }
-        size_type capacity() const { return capacity; }
-        bool empty() const { return size == 0; }
+
+        bool empty() const { return m_size == 0; }
+
         void reserve (size_type n) {
             if (n > this->max_size())
-                throw std::length_error("allocator<T>::allocate(size_t n) 'n' exceeds maximum supported size");
-            if (n > capacity) {
-                T *tmp = alloc.allocate(n);
+                throw std::length_error("allocator<T>::allocate(size_t n) 'n' exceeds maximum supported m_size");
+            if (n > m_capacity) {
+                T *tmp = m_alloc.allocate(n);
 
-                if (items != NULL) {
-                    for (size_type i = 0; i < n; i++) 
-                        alloc.construct(&tmp[i], items[i]);
-                    alloc.deallocate(items, capacity);
+                if (m_items != NULL) {
+                    for (size_type i = 0; i < n; i++)
+                        m_alloc.construct(&tmp[i], m_items[i]);
+                    m_alloc.deallocate(m_items, m_capacity);
                 }
-                items = tmp;
-                capacity = n;
+                m_items = tmp;
+                m_capacity = n;
             }
         }
-        
-        
-        
-        
-        
 
-        
-        
-        
-        
-        
-    
+        reference   operator[](size_type n) { return m_items[n]; }
+
+        const_reference operator[](size_type n) const { return m_items[n]; }
+
+        reference at(size_type n) {
+            if (n >= m_size)
+                throw_range_exception(n);
+            return m_items[n];
+        }
+
+        const_reference at (size_type n) const {
+            if (n >= m_size)
+                throw_range_exception(n);
+            return m_items[n];
+        }
+
+        reference front() { return m_items[0]; }
+
+        const_reference front() const { return m_items[0]; }
+
+        reference back() {
+            size_type i = (m_size == 0) ? 0 : m_size - 1;
+            return m_items[i];
+        }
+
+        const_reference back() const {
+            size_type i = (m_size == 0) ? 0 : m_size - 1;
+            return m_items[i];
+        }
+
+        T* 			data() { return m_items; }
+
+        const T*	data() const { return m_items; }
+
+        void clear() {
+            for (size_type i = 0; i < m_size; ++i)
+                    m_alloc.destroy(m_items + i);
+            m_size = 0;
+        }
+
+        iterator insert(iterator position, const value_type &val) {
+            size_type index = position - begin();
+
+            if (m_size == m_capacity){
+                size_type capacity = m_capacity;
+
+                if (capacity == 0)
+                    capacity = 1;
+                else
+                    capacity *= capacity_grow;
+                reserve(capacity);
+            }
+
+            for (size_type i = m_size; i != index; i--)
+                m_items[index] = m_items[index - 1];
+            m_alloc.construct( &m_items[index], val);
+            m_size++;
+            return iterator (&m_items[index]);
+        }
+
+        void insert(iterator position, size_type n, const value_type &val) {
+            iterator it = position;
+            difference_type distance = ft::distance(begin(), position);
+            size_type alloc_size = get_alloc_size(n);
+
+            reserve(alloc_size);
+
+            it = begin() + distance;
+            for (; n != 0; n--)
+                it = this->insert(it, val);
+
+        }
+
+        template<class InputIterator>
+        void insert (iterator position, InputIterator first, InputIterator last) {
+            difference_type distance = ft::distance(begin(), position);
+            difference_type n = ft::distance(first, last);
+            iterator it;
+            size_type alloc_size = get_alloc_size(n);
+
+            reserve(alloc_size);
+            it = begin() + distance;
+
+            for (; first != last; first++, it++)
+                it = this->insert(it, *first);
+        }
+
+        template <class InputIterator>
+        void assign (InputIterator first, InputIterator last) {
+            clear();
+            for (InputIterator it = first; it != last; it++)
+                push_back(*it);
+        }
+
+        void assign(size_type n, const value_type &val) {
+            clear();
+            resize(n, val);
+        }
+
+        void push_back(const value_type &val) {
+            if (m_size == m_capacity) {
+                size_type alloc = m_capacity;
+
+                if (m_capacity == 0)
+                    alloc = 1;
+                else
+                    alloc *= capacity_grow;
+                value_type *tmp = m_alloc.allocate(alloc);
+
+                for (size_type i = 0; i < m_size; i++)
+                    m_alloc.construct(&tmp[i], m_items[i]);
+                m_alloc.deallocate(m_items, m_capacity);
+                m_items = tmp;
+                m_capacity = alloc;
+            }
+            m_items[m_size++] = val;
+        }
+
+        void pop_back() {
+            if (m_size != 0)
+                m_alloc.destroy(&m_items[--m_size]);
+        }
+
+        iterator erase (iterator position) {
+            difference_type distance = ft::distance(begin(), position);
+
+            if (m_size != 0) {
+                size_type index = distance;
+
+                for (; index < m_size - 1; index++)
+                    m_items[i] = m_items[i + 1];
+                m_alloc.destroy( &m_items[index] );
+                m_size--;
+            }
+
+            return iterator (&m_items[distance]);
+        }
+
+        // NEED TO CHECK M_SIZE WITH ORIGINAL STD::VECTOR
+        iterator erase (iterator first, iterator last) {
+            size_type b = ft::distance(begin(), first);
+            size_type e = ft::distance(begin(), end);
+            size_type offset = (m_size < e) ? 0 : m_size - e;
+            size_type index;
+
+            m_size = m_size - (e - b);
+            for (index = 0; index < offset; index++) {
+                m_alloc.destroy(&m_items[b + index]);
+                m_items[b + index] = m_items[e + index];
+            }
+
+            for (; index < m_size; index++)
+                m_alloc.destroy( &m_items[b + index]);
+
+            return iterator(&m_items[b]);
+        }
+
+        allocator_type get_allocator() const { return m_alloc; }
     };
 }
 
