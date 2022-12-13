@@ -39,10 +39,11 @@ namespace ft {
         typedef typename Allocator::const_pointer   const_pointer;
         
         // ITERATORS 
-        // typedef ft::normal_iterator<pointer>					iterator;
-        // typedef ft::normal_iterator<const_pointer>              const_iterator;
-        // typedef ft::reverse_iterator<iterator>                  reverse_iterator;
-        // typedef ft::reverse_iterator<const_iterator>            const_reverse_iterator;
+        typedef ft::random_access_iterator<pointer>					    iterator;
+        typedef ft::random_access_iterator<const_pointer>               const_iterator;
+        typedef ft::reverse_iterator<iterator>                          reverse_iterator;
+        typedef ft::reverse_iterator<const_iterator>                    const_reverse_iterator;
+
     private:
         const static size_type  capacity_grow = 2;
         Allocator               m_alloc;
@@ -50,11 +51,19 @@ namespace ft {
         size_type               m_size;
         T                       *m_items;
 
-        void clear_all();
-
         void throw_range_exception(size_type n) const {
             std::stringstream s;
             s << "n (which is " << n << ") is bigger than" << m_size;
+        }
+
+        size_type get_alloc_size(size_type n){
+            if ( (m_size + n) <= m_capacity ){
+                return m_capacity;
+            } else if ( (m_capacity + n) > (m_capacity * GROWTH_FACTOR) ){
+                return m_capacity + n;
+            } else {
+                return m_capacity * GROWTH_FACTOR;
+            }
         }
 
     public:
@@ -283,41 +292,113 @@ namespace ft {
         }
 
         iterator erase (iterator position) {
-            difference_type distance = ft::distance(begin(), position);
+            difference_type distance = position - begin();
 
             if (m_size != 0) {
-                size_type index = distance;
-
-                for (; index < m_size - 1; index++)
-                    m_items[i] = m_items[i + 1];
-                m_alloc.destroy( &m_items[index] );
+                for (size_type i = distance; i < m_size; ++index) {
+                    m_alloc.destroy( &m_items[index] );
+                    if (i != m_size - 1)
+                        m_alloc.construct( &m_items[i], m_items[i + 1]);
+                }
                 m_size--;
             }
 
             return iterator (&m_items[distance]);
         }
 
-        // NEED TO CHECK M_SIZE WITH ORIGINAL STD::VECTOR
         iterator erase (iterator first, iterator last) {
-            size_type b = ft::distance(begin(), first);
-            size_type e = ft::distance(begin(), end);
-            size_type offset = (m_size < e) ? 0 : m_size - e;
-            size_type index;
+            if (first != last) {
+                iterator ptr = std::copy(last, end(), first);
 
-            m_size = m_size - (e - b);
-            for (index = 0; index < offset; index++) {
-                m_alloc.destroy(&m_items[b + index]);
-                m_items[b + index] = m_items[e + index];
+                while (end() != ptr)
+                    pop_back();
             }
 
-            for (; index < m_size; index++)
-                m_alloc.destroy( &m_items[b + index]);
+            return first;
+        }
 
-            return iterator(&m_items[b]);
+        iterator begin() {
+            return iterator( m_items );
+        }
+
+        const_iterator begin() const {
+            return const_iterator( m_items );
+        }
+
+        reverse_iterator rbegin() {
+            return reverse_iterator( end() );
+        }
+
+        const_reverse_iterator rbegin() const {
+            return const_reverse_iterator( end() );
+        }
+
+        iterator end() { return iterator ( m_items + m_size ); }
+
+        const_iterator end() const { return iterator ( m_items + m_size ); }
+
+        reverse_iterator rend() {
+            return reverse_iterator( begin() );
+        }
+
+        const_reverse_iterator rend() const {
+            return const_reverse_iterator( begin() );
         }
 
         allocator_type get_allocator() const { return m_alloc; }
+
+        void swap(vector &x) {
+            Allocator &tmp_alloc = x.m_alloc;
+            size_type tmp_capacity = x.m_capacity;
+            size_type tmp_size = x.m_size;
+            value_type *tmp_items = x.m_items;
+
+            x.m_alloc = this->m_alloc;
+            x.m_size = this->m_size;
+            x.m_capacity = this->m_capacity;
+            x.m_items = this->m_items;
+
+            this->m_size = tmp_size;
+            this->m_alloc = tmp_alloc;
+            this->m_capacity = tmp_capacity;
+            this->m_items = tmp_items;
+        }
     };
+
+    template <class T, class Alloc>
+    void swap(vector<T, Alloc> &x, vector <T, Alloc> &y) {
+        x.swap(y);
+    }
+
+    template<class T, class Alloc>
+    bool operator==(const vector<T, Alloc> &x, const vector<T, Alloc> &y){
+        return x.size() == y.size() && ft::equal(x.begin(), x.end(),y.begin(), y.end());
+    }
+
+    template<class T, class Alloc>
+    bool operator!=(const vector<T, Alloc> &x, const vector<T, Alloc> &y){
+        return !(x == y);
+    }
+
+    template<class T, class Alloc>
+    bool operator<(const vector<T, Alloc> &x, const vector<T, Alloc> &y){
+        return ft::lexicographical_compare(x.begin(), x.end(), y.begin(), y.end());
+    }
+
+    template<class T, class Alloc>
+    bool operator<=(const vector<T, Alloc> &x, const vector<T, Alloc> &y){
+        return !( y < x );
+    }
+
+    template<class T, class Alloc>
+    bool operator>(const vector<T, Alloc> &x, const vector<T, Alloc> &y){
+        return y < x;
+    }
+
+    template<class T, class Alloc>
+    bool operator>=(const vector<T, Alloc> &x, const vector<T, Alloc> &y){
+        return !( x < y );
+    }
 }
 
 #endif 
