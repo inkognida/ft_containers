@@ -9,7 +9,7 @@
 namespace ft {
 	/**
 	 * Forward declarations
-	 * 
+	 *
 	 */
     template<typename Category, typename T, typename Distance = ptrdiff_t , typename Pointer = T*, typename Reference = T&>
     struct iterator {
@@ -252,11 +252,11 @@ namespace ft {
 
 	/**
 	 * Random Access Iterator
-	 * 
+	 *
 	 */
 
 	template<class Iterator>
-	class normal_iterator : public ft::iterator<std::bidirectional_iterator_tag, Iterator> {
+	class random_access_iterator : public ft::iterator<std::bidirectional_iterator_tag, Iterator> {
 		private:
 			typedef ft::iterator_traits<Iterator>				_traits_type;
 		public:
@@ -268,18 +268,19 @@ namespace ft {
 			typedef typename _traits_type::pointer				pointer;
 
 			/* Constructors */
-			normal_iterator() : m_current( iterator_type() ) { }
-			explicit normal_iterator(iterator_type const &p) : m_current( p ) { }
+			random_access_iterator() : m_current( iterator_type() ) { }
+			explicit random_access_iterator(iterator_type const &p) : m_current( p ) { }
 
             template<class Iter>
-			normal_iterator(normal_iterator<Iter> const &it) : m_current( it.base() ) { }
+			random_access_iterator(random_access_iterator<Iter> const &it) : m_current( it.base() ) { }
 
 //            template<class Iter>
-//			normal_iterator &operator=(normal_iterator<Iter> const &it) {
+//			random_access_iterator &operator=(random_access_iterator<Iter> const &it) {
 //				m_current = it.base();
 //				return *this;
 //			}
-			~normal_iterator() {}
+			~random_access_iterator() {}
+
 
 			/* Accesses operators */
 			const iterator_type &base() const { return m_current; }
@@ -288,89 +289,91 @@ namespace ft {
 			reference operator[](difference_type offset) const { return m_current[offset]; }
 
 			/* Increment / Decrement */
-			normal_iterator &operator++() { m_current++; return *this; };
-			normal_iterator operator++(int) { normal_iterator tmp = *this; ++(*this); return tmp; }
-			normal_iterator &operator--() { m_current--; return *this; }
-			normal_iterator operator--(int) { normal_iterator tmp = *this; --(*this); return tmp; }
+			random_access_iterator &operator++() { m_current++; return *this; };
+			random_access_iterator operator++(int) { random_access_iterator tmp = *this; ++(*this); return tmp; }
+			random_access_iterator &operator--() { m_current--; return *this; }
+			random_access_iterator operator--(int) { random_access_iterator tmp = *this; --(*this); return tmp; }
 
 			/* Arithmetic */
-			normal_iterator &operator+=(difference_type offset) { m_current += offset; return *this; }
-			normal_iterator &operator-=(difference_type offset) { m_current -= offset; return *this; }
-			
-			normal_iterator operator+(difference_type offset) const { return normal_iterator( m_current + offset ); }
-			normal_iterator operator-(difference_type offset) const { return normal_iterator( m_current - offset ); }
+			random_access_iterator &operator+=(difference_type offset) { m_current += offset; return *this; }
+			random_access_iterator &operator-=(difference_type offset) { m_current -= offset; return *this; }
+
+			random_access_iterator operator+(difference_type offset) const { return random_access_iterator( m_current + offset ); }
+			random_access_iterator operator-(difference_type offset) const { return random_access_iterator( m_current - offset ); }
 		private:
 			iterator_type m_current;
 	};
 
-    /* normal_iterator_comparison */
+    /* random_access_iterator_comparison */
     template<class Iter>
-    inline bool operator==(normal_iterator<Iter> const &x, normal_iterator<Iter> const &y)
+    inline bool operator==(random_access_iterator<Iter> const &x, random_access_iterator<Iter> const &y)
     { return x.base() == y.base(); }
 
     template<class Iter>
-    inline bool operator<(normal_iterator<Iter> const &x, normal_iterator<Iter> const &y)
+    inline bool operator<(random_access_iterator<Iter> const &x, random_access_iterator<Iter> const &y)
     { return x.base() < y.base(); }
 
     template<class Iter>
-    inline bool operator<=(normal_iterator<Iter> const &x, normal_iterator<Iter> const &y)
+    inline bool operator<=(random_access_iterator<Iter> const &x, random_access_iterator<Iter> const &y)
     { return x.base() <= y.base(); }
 
     template<class Iter>
-    inline bool operator!=(normal_iterator<Iter> const &x, normal_iterator<Iter> const &y)
+    inline bool operator!=(random_access_iterator<Iter> const &x, random_access_iterator<Iter> const &y)
     { return x.base() != y.base(); }
 
     template<class Iter>
-    inline bool operator>(normal_iterator<Iter> const &x, normal_iterator<Iter> const &y)
+    inline bool operator>(random_access_iterator<Iter> const &x, random_access_iterator<Iter> const &y)
     { return x.base() > y.base(); }
 
     template<class Iter>
-    inline bool operator>=(normal_iterator<Iter> const &x, normal_iterator<Iter> const &y)
+    inline bool operator>=(random_access_iterator<Iter> const &x, random_access_iterator<Iter> const &y)
     { return x.base() >= y.base(); }
 
     /* Overload to compare reverse_iterator with const reverse_iterator */
 
     template<class IterL, class IterR>
-    inline bool operator==(normal_iterator<IterL> const &x, normal_iterator<IterR> const &y)
+    inline bool operator==(random_access_iterator<IterL> const &x, random_access_iterator<IterR> const &y)
     { return x.base() == y.base(); }
 
     template<class IterL, class IterR>
-    inline bool operator<(normal_iterator<IterL> const &x, normal_iterator<IterR> const &y)
+    inline bool operator<(random_access_iterator<IterL> const &x, random_access_iterator<IterR> const &y)
     { return x.base() < y.base(); }
 
     template<class IterL, class IterR>
-    inline bool operator<=(normal_iterator<IterL> const &x, normal_iterator<IterR> const &y)
+    inline bool operator<=(random_access_iterator<IterL> const &x, random_access_iterator<IterR> const &y)
     { return x.base() <= y.base(); }
 
     template<class IterL, class IterR>
-    inline bool operator!=(normal_iterator<IterL> const &x, normal_iterator<IterR> const &y)
+    inline bool operator!=(random_access_iterator<IterL> const &x, random_access_iterator<IterR> const &y)
     { return x.base() != y.base(); }
 
     template<class IterL, class IterR>
-    inline bool operator>(normal_iterator<IterL> const &x, normal_iterator<IterR> const &y)
+    inline bool operator>(random_access_iterator<IterL> const &x, random_access_iterator<IterR> const &y)
     { return x.base() > y.base(); }
 
     template<class IterL, class IterR>
-    inline bool operator>=(normal_iterator<IterL> const &x, normal_iterator<IterR> const &y)
+    inline bool operator>=(random_access_iterator<IterL> const &x, random_access_iterator<IterR> const &y)
     { return x.base() >= y.base(); }
 
     template<class Iterator>
-    inline typename normal_iterator<Iterator>::difference_type
-    operator-(normal_iterator<Iterator> const &x, normal_iterator<Iterator> const &y){
+    inline typename random_access_iterator<Iterator>::difference_type
+    operator-(random_access_iterator<Iterator> const &x, random_access_iterator<Iterator> const &y){
         return x.base() - y.base();
     }
 
     template<class IteratorL, class IteratorR>
-    inline typename normal_iterator<IteratorL>::difference_type
-    operator-(normal_iterator<IteratorL> const &x, normal_iterator<IteratorR> const &y){
+    inline typename random_access_iterator<IteratorL>::difference_type
+    operator-(random_access_iterator<IteratorL> const &x, random_access_iterator<IteratorR> const &y){
         return x.base() - y.base();
     }
 
     template<class Iterator>
-    inline normal_iterator<Iterator>
-    operator+(typename normal_iterator<Iterator>::difference_type n, normal_iterator<Iterator> const &i){
-        return normal_iterator<Iterator>( i.base() + n );
+    inline random_access_iterator<Iterator>
+    operator+(typename random_access_iterator<Iterator>::difference_type n, random_access_iterator<Iterator> const &i){
+        return random_access_iterator<Iterator>( i.base() + n );
     }
 }
 
 #endif
+
+

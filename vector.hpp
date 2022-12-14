@@ -24,6 +24,10 @@
 # include <memory>
 # include <cstddef>
 
+# include "algorithm/algorithm.hpp"
+# include "traits/traits.hpp"
+# include "traits/iterator.hpp"
+
 namespace ft {
     template<class T, class Allocator = std::allocator<T> >
     class vector
@@ -37,12 +41,12 @@ namespace ft {
         typedef typename Allocator::const_reference const_reference;
         typedef typename Allocator::pointer         pointer;
         typedef typename Allocator::const_pointer   const_pointer;
-        
-        // ITERATORS 
-        typedef ft::random_access_iterator<pointer>					    iterator;
-        typedef ft::random_access_iterator<const_pointer>               const_iterator;
-        typedef ft::reverse_iterator<iterator>                          reverse_iterator;
-        typedef ft::reverse_iterator<const_iterator>                    const_reverse_iterator;
+
+        // ITERATORS
+        typedef ft::random_access_iterator<pointer>					        iterator;
+        typedef ft::random_access_iterator<const_pointer>                   const_iterator;
+        typedef ft::reverse_iterator<iterator>                              reverse_iterator;
+        typedef ft::reverse_iterator<const_iterator>                        const_reverse_iterator;
 
     private:
         const static size_type  capacity_grow = 2;
@@ -53,16 +57,18 @@ namespace ft {
 
         void throw_range_exception(size_type n) const {
             std::stringstream s;
-            s << "n (which is " << n << ") is bigger than" << m_size;
+
+            s << "n (which is " << n << ") >= this->size() (which is " << m_size << ")";
+            throw std::out_of_range(s.str());
         }
 
         size_type get_alloc_size(size_type n){
             if ( (m_size + n) <= m_capacity ){
                 return m_capacity;
-            } else if ( (m_capacity + n) > (m_capacity * GROWTH_FACTOR) ){
+            } else if ( (m_capacity + n) > (m_capacity * capacity_grow) ){
                 return m_capacity + n;
             } else {
-                return m_capacity * GROWTH_FACTOR;
+                return m_capacity * capacity_grow;
             }
         }
 
@@ -70,7 +76,7 @@ namespace ft {
         // FUNCTIONS
         explicit vector(const allocator_type &a = allocator_type()): m_alloc(a), m_capacity(0), m_size(0), m_items(NULL) {}
 
-        explicit vector(const vector &a): m_alloc(a.get_allocator()), m_capacity(a.m_capacity()), m_size(a.m_size()), m_items(NULL) {
+        explicit vector(const vector &a): m_alloc(a.get_allocator()), m_capacity(a.capacity()), m_size(a.size()), m_items(NULL) {
             if (m_capacity != 0){
                 m_items = m_alloc.allocate(m_capacity);
                 for (size_type i = 0; i < m_size; i++)
@@ -79,38 +85,38 @@ namespace ft {
         };
 
         explicit vector(size_type n, const value_type &val = value_type(), const allocator_type &a = allocator_type() ) {
-				m_alloc = a;
-				m_items = m_alloc.allocate( n );
-				m_size = n;
-				m_capacity = n;
+            m_alloc = a;
+            m_items = m_alloc.allocate( n );
+            m_size = n;
+            m_capacity = n;
 
-				for ( size_type i = 0 ; i < n ; i++ ){
-					m_alloc.construct( &m_items[i], val );
-				}
-			}
+            for ( size_type i = 0 ; i < n ; i++ ){
+                m_alloc.construct( &m_items[i], val );
+            }
+        }
 
         vector& operator=( const vector& other ) {
             if (&other == this)
                 return *this;
             this->clear();
-            this->reserve(other.m_capacity());
-            for (size_type i = 0; i < other.m_size(); i++)
+            this->reserve(other.capacity());
+            for (size_type i = 0; i < other.size(); i++)
                 m_alloc.construct(&m_items[i], other[i]);
-            m_size = other.m_size();
+            m_size = other.size();
             return *this;
         }
 
         template< class InputIterator >
-        vector(InputIterator first, InputIterator last, const allocator_type &m_alloc = allocator_type(),
-                typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = NULL ) :
-				m_alloc( m_alloc ),
-				m_items( NULL )
+        vector(InputIterator first, InputIterator last, const allocator_type &alloc = allocator_type(),
+               typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = NULL ) :
+                m_alloc( alloc ),
+                m_items( NULL )
         {
             difference_type _size = ft::distance(first, last);
 
             if (m_size != 0) {
                 m_items = m_alloc.allocate(_size);
-                for (size_type i = 0; first != last; *first++, i++) {
+                for (size_type i = 0; first != last; first++, i++) {
                     m_alloc.construct(&m_items[i], *first);
                 }
             }
@@ -204,7 +210,7 @@ namespace ft {
 
         void clear() {
             for (size_type i = 0; i < m_size; ++i)
-                    m_alloc.destroy(m_items + i);
+                m_alloc.destroy(m_items + i);
             m_size = 0;
         }
 
@@ -222,7 +228,7 @@ namespace ft {
             }
 
             for (size_type i = m_size; i != index; i--)
-                m_items[index] = m_items[index - 1];
+                m_items[i] = m_items[i - 1];
             m_alloc.construct( &m_items[index], val);
             m_size++;
             return iterator (&m_items[index]);
@@ -242,24 +248,25 @@ namespace ft {
         }
 
         template<class InputIterator>
-        void insert (iterator position, InputIterator first, InputIterator last) {
+        void insert(iterator position, InputIterator first, InputIterator last, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = NULL ){
             difference_type distance = ft::distance(begin(), position);
             difference_type n = ft::distance(first, last);
             iterator it;
             size_type alloc_size = get_alloc_size(n);
 
-            reserve(alloc_size);
-            it = begin() + distance;
+            reserve( alloc_size );
 
-            for (; first != last; first++, it++)
-                it = this->insert(it, *first);
+            it = begin() + distance;
+            for ( ; first != last ; first++, it++ ){
+                it = this->insert( it, *first );
+            }
         }
 
         template <class InputIterator>
-        void assign (InputIterator first, InputIterator last) {
+        void assign( InputIterator first, InputIterator last, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = NULL){
             clear();
-            for (InputIterator it = first; it != last; it++)
-                push_back(*it);
+            for ( InputIterator it = first ; it != last ; it++ )
+                push_back( *it );
         }
 
         void assign(size_type n, const value_type &val) {
@@ -295,10 +302,10 @@ namespace ft {
             difference_type distance = position - begin();
 
             if (m_size != 0) {
-                for (size_type i = distance; i < m_size; ++index) {
+                for (size_type index = distance; index < m_size; ++index) {
                     m_alloc.destroy( &m_items[index] );
-                    if (i != m_size - 1)
-                        m_alloc.construct( &m_items[i], m_items[i + 1]);
+                    if (index != m_size - 1)
+                        m_alloc.construct( &m_items[index], m_items[index + 1]);
                 }
                 m_size--;
             }
@@ -401,4 +408,4 @@ namespace ft {
     }
 }
 
-#endif 
+#endif

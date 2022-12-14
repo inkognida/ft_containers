@@ -39,20 +39,30 @@ namespace ft
     
     public:
         explicit stack(const container_type &c = container_type()): m_items(c) {}
+
         stack (const stack &other): elems(other.elems) {}
+
         stack &operator=(const stack &other) {
             if (&other == this)
                 return *this;
+
             this->elems = other.elems;
             return *this;
         }
+
         ~stack() {}
+
         bool empty() const { return elems.empty(); }
+
         size_type size() const { return elems.size(); }
+
         value_type& top() { return elems.back(); }
+
         const value_type& top() const { return elems.back(); }
+
         void push (const value_type &val) { elems.push_back(val); }
-        void pop() { elems.pop_back(); }   
+
+        void pop() { elems.pop_back(); }
         
         template< class T, class Container >
         friend bool operator==( const ft::stack<T,Container>& lhs, const ft::stack<T,Container>& rhs );   
