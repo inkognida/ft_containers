@@ -2343,7 +2343,6 @@ int     main(){
 	test_containers_time();
 
 //    ft::vector<int> test;
-//    ft::vector<int>::iterator it;
 //
 //    test.push_back(1);
 //    test.push_back(2);
