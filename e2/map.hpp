@@ -305,6 +305,7 @@ namespace ft
 			typedef typename allocator_type::const_pointer									const_pointer;
 			typedef std::ptrdiff_t															difference_type;
 			typedef std::size_t																size_type;
+
 			typedef rb_iterator<value_type>													iterator;
 			typedef rb_const_iterator<value_type>											const_iterator;
 			typedef ft::reverse_iterator<iterator>											reverse_iterator;

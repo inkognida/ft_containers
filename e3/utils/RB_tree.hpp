@@ -99,10 +99,12 @@ class red_black_tree {
     typedef typename ft::node<value_type>::node_pointer             node_pointer;
     typedef typename ft::node<value_type>::const_node_pointer       const_node_pointer;
     typedef typename allocator_type_node::reference                 node_reference;
+
     typedef ft::tree_iterator<node_pointer, value_type>             iterator;
     typedef ft::const_tree_iterator<const_node_pointer, value_type> const_iterator;
     typedef ft::reverse_iterator<iterator>                          reverse_iterator;
     typedef ft::reverse_iterator<const_iterator>                    const_reverse_iterator;
+
     typedef typename allocator_type::difference_type                difference_type;
     typedef typename allocator_type::size_type                      size_type;
 
@@ -403,7 +405,7 @@ class red_black_tree {
     const_iterator find(const key_type &key) const {
         node_pointer n = iterative_search(_root, key);
         if (n == _root && _root != _null && _is_equal(*_root->key, key))
-            return const_iterator(_root);
+            return const_iterator(_root );
         else if (n == _root)
             return const_iterator(end());
         else

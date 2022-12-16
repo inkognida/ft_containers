@@ -163,23 +163,33 @@ class map {
         _tree.insert(first, last);
     }
 
-    void erase(iterator position) { _tree.erase(position.base()); }
+    void erase(iterator position) {
+        _tree.erase(position.base());
+    }
 
     size_type erase(const key_type &key) {
-        size_type cnt = 0;
-        iterator  it;
-        while ((it = find(key)) != end()) {
-            erase(it);
-            ++cnt;
-        }
-        return cnt;
+//        size_type cnt = 0;
+//        iterator  it;
+//        while ((it = find(key)) != end()) {
+//            erase(it);
+//            ++cnt;
+//        }
+//        return cnt;
+        iterator x = find(key);
+
+        if (x == end())
+            return 0;
+        erase(x);
+        return 1;
     }
 
     void erase(iterator first, iterator last) {
-        for (iterator tmp = first; tmp != last; tmp = first) {
-            first++;
-            erase(tmp);
-        }
+//        for (iterator tmp = first; tmp != last; tmp = first) {
+//            first++;
+//            erase(tmp);
+//        }
+        for (; first != last; )
+            erase(iterator(first++));
     }
 
     void clear() { _tree.clear(); }
