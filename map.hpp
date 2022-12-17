@@ -134,11 +134,57 @@ namespace ft {
 
         allocator_type get_allocator() const { return _tree.get_allocator(); }
 
+        class value_compare {
+            friend class map;
+        public:
+            typedef bool result_type;
+            typedef value_type first_argument_type;
+            typedef value_type second_argument_type;
 
+            bool operator() (const value_type &lhs, const value_type &rhs) const {
+                return comp(lhs.first, rhs.first);
+            }
+
+        protected:
+            Compare comp;
+            value_compare(Compare cmp): comp(cmp);
+        };
     private:
         ft::red_black_tree<value_type, key_type, mapped_type, map_compare, allocator_type> _tree;
     };
 
+    template <class Key, class T, class Compare, class Alloc>
+    void swap(ft::map<Key, T, Compare, Alloc> &x, ft::map<Key, T, Compare, Alloc> &y) {
+        x.swap(y);
+    }
+
+    template <class Key, class T, class Compare, class Alloc>
+    inline bool operator==(const ft::map<Key, T, Compare, Alloc>& x, const ft::map<Key, T, Compare, Alloc>& y) {
+        return x.size() == y.size() && std::equal(x.begin(), x.end(), y.begin());
+    }
+
+    template <class Key, class T, class Compare, class Alloc>
+    inline bool operator!=(const ft::map<Key, T, Compare, Alloc>& x, const ft::map<Key, T, Compare, Alloc>& y) {
+        return !(x == y);
+    }
+
+    template <class Key, class T, class Compare, class Alloc>
+    inline bool operator<(const ft::map<Key, T, Compare, Alloc>& x, const ft::map<Key, T, Compare, Alloc>& y) {
+        return ft::lexicographical_compare(x.begin(), x.end(), y.begin(), y.end());
+    }
+
+    template <class Key, class T, class Compare, class Alloc>
+    inline bool operator>(const ft::map<Key, T, Compare, Alloc>& x, const ft::map<Key, T, Compare, Alloc>& y) {
+        return y < x;
+    }
+    template <class Key, class T, class Compare, class Alloc>
+    inline bool operator<=(const ft::map<Key, T, Compare, Alloc>& x, const ft::map<Key, T, Compare, Alloc>& y) {
+        return !(y < x);
+    }
+    template <class Key, class T, class Compare, class Alloc>
+    inline bool operator>=(const ft::map<Key, T, Compare, Alloc>& x, const ft::map<Key, T, Compare, Alloc>& y) {
+        return !(x < y);
+    }
 }
 
 
