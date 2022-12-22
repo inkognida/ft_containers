@@ -1,0 +1,10 @@
+Greater or Equal (file: tests/set/comparisons_gt.cpp, line: 12)
+Greater or Equal. (file: tests/set/comparisons_gt.cpp, line: 21)
+Greater or Equal... (file: tests/set/comparisons_gt.cpp, line: 39)
+Greater or Equal.... (file: tests/set/comparisons_gt.cpp, line: 48)
+========================================
+No leak detected
+========================================
+========================================
+Every objects destroyed
+========================================

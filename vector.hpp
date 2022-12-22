@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   vector.hpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: hardella <hardella@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/24 16:34:09 by hardella          #+#    #+#             */
-/*   Updated: 2022/11/24 21:59:01 by hardella         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 
@@ -24,9 +12,9 @@
 # include <memory>
 # include <cstddef>
 
-# include "algorithm/algorithm.hpp"
-# include "traits/traits.hpp"
-# include "traits/iterator.hpp"
+# include "utils/algorithm.hpp"
+# include "utils/traits.hpp"
+# include "utils/iterator.hpp"
 
 namespace ft {
     template<class T, class Allocator = std::allocator<T> >

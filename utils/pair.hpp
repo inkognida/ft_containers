@@ -25,7 +25,6 @@ namespace ft {
             second = pr.second;
             return *this;
         }
-        ~pair();
     };
 
     template<class T1, class T2>
