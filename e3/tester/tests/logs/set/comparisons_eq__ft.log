@@ -1,9 +1,0 @@
-Equal (file: tests/set/comparisons_eq.cpp, line: 12)
-Equal... (file: tests/set/comparisons_eq.cpp, line: 39)
-Equal.... (file: tests/set/comparisons_eq.cpp, line: 48)
-========================================
-No leak detected
-========================================
-========================================
-Every objects destroyed
-========================================
